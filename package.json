@@ -2,25 +2,34 @@
   "name": "my-monorepo2",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "next": "16.0.4",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "db:generate": "turbo run db:generate",
+    "db:push": "turbo run db:push",
+    "db:seed": "turbo run db:seed",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:site1": "npm run dev --workspace=apps/site1",
+    "dev:site2": "npm run dev --workspace=apps/site2",
+    "dev:site3": "npm run dev --workspace=apps/site3"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.4",
-    "tailwindcss": "^4",
+    "turbo": "^2.0.0",
     "typescript": "^5"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
   }
 }

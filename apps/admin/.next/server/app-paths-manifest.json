@@ -1,0 +1,6 @@
+{
+  "/profiles/edit/[id]/page": "app/profiles/edit/[id]/page.js",
+  "/api/profiles/route": "app/api/profiles/route.js",
+  "/profiles/page": "app/profiles/page.js",
+  "/api/customers/route": "app/api/customers/route.js"
+}
