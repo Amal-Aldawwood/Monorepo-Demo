@@ -1,132 +1,108 @@
-import { PrismaClient } from '@prisma/client';
-import { SITE_NAMES, SITE_COLORS } from '@repo/shared';
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
-
-const writeFileAsync = promisify(fs.writeFile);
-const readFileAsync = promisify(fs.readFile);
-const dbPath = path.join(process.cwd(), 'sites.json');
+import { db } from '../index';
 
 export interface Site {
   id: number;
   name: string;
   color: string;
+  port?: number;
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+  customers?: any[];
 }
 
-// In-memory sites storage
-let sitesCache: Site[] = [];
-
-// Initialize with the default sites from constants
-async function initSites(): Promise<void> {
-  try {
-    // Try to load from file first
-    const sites = await loadSitesFromFile();
-    if (sites.length > 0) {
-      sitesCache = sites;
-      return;
-    }
-  } catch (error) {
-    console.log('No existing sites file, initializing with defaults...');
-  }
-
-  // Initialize with default sites from constants
-  sitesCache = Object.entries(SITE_NAMES).map(([id, name]) => ({
-    id: parseInt(id),
-    name,
-    color: SITE_COLORS[parseInt(id) as keyof typeof SITE_COLORS] || '#000000',
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  }));
-
-  // Save to file
-  await saveSitesToFile();
-}
-
-// Load sites from file
-async function loadSitesFromFile(): Promise<Site[]> {
-  try {
-    const data = await readFileAsync(dbPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-// Save sites to file
-async function saveSitesToFile(): Promise<void> {
-  try {
-    await writeFileAsync(dbPath, JSON.stringify(sitesCache, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error saving sites to file:', error);
-  }
-}
-
-// Initialize sites on module load
-initSites().catch(console.error);
-
-// Get all sites from storage
+/**
+ * Get all sites from the database
+ */
 export async function getAllSites(): Promise<Site[]> {
-  return sitesCache.filter(site => site.isActive !== false);
+  return db.site.findMany({
+    where: {
+      isActive: true
+    },
+    include: {
+      customers: true
+    }
+  });
 }
 
-// Get a specific site by ID
+/**
+ * Get a specific site by ID
+ */
 export async function getSiteById(id: number): Promise<Site | null> {
-  const site = sitesCache.find(s => s.id === id && s.isActive !== false);
-  return site || null;
+  return db.site.findUnique({
+    where: { 
+      id,
+      isActive: true
+    },
+    include: {
+      customers: true
+    }
+  });
 }
 
-// Create a new site
+/**
+ * Create a new site
+ */
 export async function createSite(
   name: string,
-  color: string
+  color: string,
+  port: number = 3000
 ): Promise<Site> {
-  // Find the highest ID and increment by 1
-  const highestId = sitesCache.reduce((max, site) => Math.max(max, site.id), 0);
-  const newId = highestId + 1;
-  
-  const newSite: Site = {
-    id: newId,
-    name,
-    color,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-  
-  sitesCache.push(newSite);
-  await saveSitesToFile();
-  
-  return newSite;
+  return db.site.create({
+    data: {
+      name,
+      color,
+      port,
+      isActive: true
+    },
+    include: {
+      customers: true
+    }
+  });
 }
 
-// Update an existing site
+/**
+ * Update an existing site
+ */
 export async function updateSite(
   id: number,
-  data: { name?: string; color?: string; isActive?: boolean }
+  data: { name?: string; color?: string; port?: number; isActive?: boolean }
 ): Promise<Site | null> {
-  const index = sitesCache.findIndex(s => s.id === id);
-  
-  if (index === -1) {
-    return null;
-  }
-  
-  // Update the site
-  sitesCache[index] = {
-    ...sitesCache[index],
-    ...data,
-    updatedAt: new Date(),
-  };
-  
-  await saveSitesToFile();
-  return sitesCache[index];
+  return db.site.update({
+    where: { id },
+    data: {
+      ...data,
+      updatedAt: new Date()
+    },
+    include: {
+      customers: true
+    }
+  });
 }
 
-// Delete a site (soft delete by setting isActive to false)
+/**
+ * Delete a site (soft delete by setting isActive to false)
+ */
 export async function deleteSite(id: number): Promise<Site | null> {
-  return updateSite(id, { isActive: false });
+  return db.site.update({
+    where: { id },
+    data: { 
+      isActive: false,
+      updatedAt: new Date()
+    },
+    include: {
+      customers: true
+    }
+  });
+}
+
+/**
+ * Get all sites including inactive ones for admin purposes
+ */
+export async function getAllSitesAdmin(): Promise<Site[]> {
+  return db.site.findMany({
+    include: {
+      customers: true
+    }
+  });
 }

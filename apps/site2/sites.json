@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Site 1",
+    "color": "#10b981",
+    "isActive": true,
+    "createdAt": "2025-11-30T08:33:50.356Z",
+    "updatedAt": "2025-11-30T08:33:50.356Z"
+  },
+  {
+    "id": 2,
+    "name": "Site 2",
+    "color": "#f59e0b",
+    "isActive": true,
+    "createdAt": "2025-11-30T08:33:50.356Z",
+    "updatedAt": "2025-11-30T08:33:50.356Z"
+  },
+  {
+    "id": 3,
+    "name": "Site 3",
+    "color": "#8b5cf6",
+    "isActive": true,
+    "createdAt": "2025-11-30T08:33:50.356Z",
+    "updatedAt": "2025-11-30T08:33:50.356Z"
+  }
+]

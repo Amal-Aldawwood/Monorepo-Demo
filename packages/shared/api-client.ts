@@ -241,3 +241,138 @@ export const parseSharedSites = (sharedWith: string | null): number[] => {
     return [];
   }
 };
+
+/**
+ * Site-related API functions
+ */
+
+export interface SiteData {
+  id: number;
+  name: string;
+  color: string;
+  port: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  customers?: CustomerData[];
+}
+
+/**
+ * Get all sites
+ */
+export const getSites = async (): Promise<SiteData[]> => {
+  try {
+    const response = await fetch('/api/sites');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch sites: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching sites:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get a specific site by ID
+ */
+export const getSite = async (id: number): Promise<SiteData> => {
+  try {
+    const response = await fetch(`/api/sites?id=${id}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch site: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error(`Error fetching site ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Create a new site
+ */
+export const createSite = async (siteData: {
+  name: string;
+  color: string;
+  port?: number;
+}): Promise<SiteData> => {
+  try {
+    const response = await fetch('/api/sites', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(siteData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create site');
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error creating site:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update an existing site
+ */
+export const updateSite = async (
+  id: number,
+  siteData: Partial<{
+    name: string;
+    color: string;
+    port: number;
+    isActive: boolean;
+  }>
+): Promise<SiteData> => {
+  try {
+    const response = await fetch(`/api/sites?id=${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(siteData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update site');
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error updating site:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a site
+ */
+export const deleteSite = async (id: number): Promise<SiteData> => {
+  try {
+    const response = await fetch(`/api/sites?id=${id}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete site');
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error deleting site:', error);
+    throw error;
+  }
+};

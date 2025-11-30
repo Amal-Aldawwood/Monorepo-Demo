@@ -1,29 +1,58 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Button, Input } from "@repo/ui";
-import { SITE_NAMES, SITE_COLORS } from "@repo/shared";
+import { getSites, SiteData, DEFAULT_SITE_COLORS, DEFAULT_SITE_NAMES } from "@repo/shared";
 
 export default function CustomerForm() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     siteId: "1",
-    color: SITE_COLORS[1]
+    color: DEFAULT_SITE_COLORS[1]
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [sites, setSites] = useState<SiteData[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch all active sites when component mounts
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const sitesData = await getSites();
+        console.log('Available sites:', sitesData);
+        setSites(sitesData);
+        
+        // If we have sites and no siteId is selected yet, set the first one as default
+        if (sitesData.length > 0 && formData.siteId === "1") {
+          setFormData(prev => ({
+            ...prev,
+            siteId: sitesData[0].id.toString(),
+            color: sitesData[0].color
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching sites:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSites();
+  }, []);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
     // If site changes, update the color automatically
     if (name === "siteId") {
+      const selectedSite = sites.find(site => site.id.toString() === value);
       setFormData({
         ...formData,
         siteId: value,
-        color: SITE_COLORS[parseInt(value)]
+        color: selectedSite ? selectedSite.color : DEFAULT_SITE_COLORS[parseInt(value)]
       });
     } else {
       setFormData({
@@ -69,7 +98,7 @@ export default function CustomerForm() {
         name: "",
         email: "",
         siteId: "1",
-        color: SITE_COLORS[1]
+        color: DEFAULT_SITE_COLORS[1]
       });
       
       // Refresh the page after a short delay
@@ -143,11 +172,24 @@ export default function CustomerForm() {
               value={formData.siteId}
               onChange={handleChange}
               required
+              disabled={loading}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary dark:bg-zinc-800 dark:border-zinc-700"
             >
-              <option value="1">{SITE_NAMES[1]}</option>
-              <option value="2">{SITE_NAMES[2]}</option>
-              <option value="3">{SITE_NAMES[3]}</option>
+              {loading ? (
+                <option value="">Loading sites...</option>
+              ) : sites.length > 0 ? (
+                sites.map(site => (
+                  <option key={site.id} value={site.id.toString()}>
+                    {site.name} {site.port ? `(Port: ${site.port})` : ''}
+                  </option>
+                ))
+              ) : (
+                Object.entries(DEFAULT_SITE_NAMES).map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
           

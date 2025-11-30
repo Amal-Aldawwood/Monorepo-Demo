@@ -2,7 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
-import { Layout } from "lucide-react"; // Changed to a valid icon
+import SiteInitializer from "../components/SiteInitializer";
 
 export const metadata: Metadata = {
   title: "Super Admin Dashboard",
@@ -21,10 +21,10 @@ export default function RootLayout({
           <Sidebar />
           <div className="flex-1 p-8">
             <div className="logo">
-              <div className="logo-icon">
-                <Layout size={16} />
-              </div>
+              <h1 className="text-xl font-semibold mb-2">Admin Dashboard</h1>
             </div>
+            {/* Initialize site constants */}
+            <SiteInitializer />
             {children}
           </div>
         </div>

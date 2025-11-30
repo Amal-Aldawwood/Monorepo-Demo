@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, Button } from '@repo/ui';
 import { getAllSites } from '@repo/database';
 import SiteForm from '../../components/SiteForm';
-import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +22,7 @@ export default async function SitesPage() {
               <tr>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">ID</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Name</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Port</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Color</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Preview</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Actions</th>
@@ -33,6 +33,9 @@ export default async function SitesPage() {
                 <tr key={site.id} className="hover:bg-gray-50 dark:hover:bg-zinc-900">
                   <td className="px-4 py-3 text-sm">{site.id}</td>
                   <td className="px-4 py-3 text-sm font-medium">{site.name}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className="font-mono">{site.port || 'N/A'}</span>
+                  </td>
                   <td className="px-4 py-3 text-sm">
                     <div className="flex items-center">
                       <div 
@@ -54,12 +57,12 @@ export default async function SitesPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <Link 
+                    <a 
                       href={`/sites/edit/${site.id}`}
                       className="text-blue-500 hover:text-blue-700 mr-2"
                     >
                       Edit
-                    </Link>
+                    </a>
                   </td>
                 </tr>
               ))}
@@ -79,6 +82,9 @@ export default async function SitesPage() {
               
               <div className="space-y-2 mb-4">
                 <p className="text-sm text-gray-500">Site ID: {site.id}</p>
+                <p className="text-sm">
+                  Port: <span className="font-mono">{site.port || 'N/A'}</span>
+                </p>
                 <p className="text-sm">
                   Brand Color: <span className="font-mono">{site.color}</span>
                 </p>
@@ -106,12 +112,12 @@ export default async function SitesPage() {
               </div>
               
               <div className="flex justify-end mt-4">
-                <Link 
+                <a 
                   href={`/sites/edit/${site.id}`} 
                   className="text-sm text-blue-500 hover:text-blue-700"
                 >
                   Edit site settings
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -122,11 +128,15 @@ export default async function SitesPage() {
         <h2 className="text-lg font-semibold mb-2">Note</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
           Creating a new site adds it to the list above, and you can edit its properties.
+          Each site requires a unique port number.
         </p>
         <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-          In a real application, this would also generate the necessary files and configurations 
-          for a complete new website. For this demo, you can create and edit sites, but they 
-          won't be deployed as actual separate web applications.
+          When a new site is created, the system will automatically generate the necessary
+          files and configurations. The site will be available at http://localhost:PORT, 
+          where PORT is the port number you specified when creating the site.
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+          After creating a site, you'll need to run <code className="bg-gray-100 dark:bg-zinc-700 px-1 py-0.5 rounded">npx turbo dev --filter=site{'{siteId}'}</code> to start the site's development server.
         </p>
       </div>
     </div>

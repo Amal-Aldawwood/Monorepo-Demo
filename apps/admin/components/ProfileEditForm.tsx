@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, Button, Input } from "@repo/ui";
-import { SITE_NAMES, SITE_COLORS } from "@repo/shared";
+import { SITE_NAMES, SITE_COLORS, getSites, SiteData } from "@repo/shared";
 import { useRouter } from "next/navigation";
 
 type Customer = {
@@ -30,6 +30,7 @@ interface ProfileEditFormProps {
 export default function ProfileEditForm({ profile }: ProfileEditFormProps) {
   const router = useRouter();
   const [availableCustomers, setAvailableCustomers] = useState<Customer[]>([]);
+  const [availableSites, setAvailableSites] = useState<SiteData[]>([]);
   
   // Parse shared sites from JSON string
   const parseSharedSites = (sharedWith: string | null): number[] => {
@@ -70,8 +71,20 @@ export default function ProfileEditForm({ profile }: ProfileEditFormProps) {
     fetchCustomers();
   }, []);
   
-  // All available sites for sharing
-  const availableSites = [1, 2, 3];
+  // Fetch all available sites for sharing
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const sitesData = await getSites();
+        console.log('Available sites for sharing (edit form):', sitesData);
+        setAvailableSites(sitesData);
+      } catch (error) {
+        console.error("Error fetching sites:", error);
+      }
+    };
+    
+    fetchSites();
+  }, []);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -231,24 +244,24 @@ export default function ProfileEditForm({ profile }: ProfileEditFormProps) {
                 Share with sites:
               </p>
               <div className="flex flex-wrap gap-3">
-                {availableSites.map(siteId => (
+                {availableSites.map(site => (
                   <label 
-                    key={siteId}
+                    key={site.id}
                     className="flex items-center space-x-2 px-3 py-2 rounded-md"
                     style={{ 
-                      backgroundColor: `${SITE_COLORS[siteId]}10`,
-                      borderColor: `${SITE_COLORS[siteId]}30`
+                      backgroundColor: `${site.color}10`,
+                      borderColor: `${site.color}30`
                     }}
                   >
                     <input
                       type="checkbox"
-                      name={`site${siteId}`}
-                      checked={formData.sharedWith.includes(siteId)}
+                      name={`site${site.id}`}
+                      checked={formData.sharedWith.includes(site.id)}
                       onChange={handleCheckboxChange}
                       className="rounded text-primary focus:ring-primary"
                     />
-                    <span style={{ color: SITE_COLORS[siteId] }}>
-                      {SITE_NAMES[siteId]}
+                    <span style={{ color: site.color }}>
+                      {site.name}
                     </span>
                   </label>
                 ))}

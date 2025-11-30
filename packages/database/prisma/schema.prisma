@@ -11,6 +11,7 @@ model Site {
   id        Int        @id @default(autoincrement())
   name      String
   color     String     // Brand color
+  port      Int        @default(3000) // Default port for the site
   isActive  Boolean    @default(true)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

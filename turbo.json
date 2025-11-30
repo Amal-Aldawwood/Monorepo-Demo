@@ -11,7 +11,8 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": []
     },
     "start": {
       "dependsOn": ["build"]
@@ -24,6 +25,11 @@
     },
     "db:seed": {
       "cache": false
+    },
+    "generate-site": {
+      "cache": false,
+      "inputs": ["scripts/generate-site.js"],
+      "outputs": ["apps/site*/"]
     }
   }
 }

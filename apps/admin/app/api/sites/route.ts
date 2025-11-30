@@ -36,7 +36,7 @@ export const POST = async (request: NextRequest) => {
     const body = await request.json();
 
     // Validate the required fields
-    const { name, color } = body;
+    const { name, color, port } = body;
     if (!name || !color) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -44,8 +44,11 @@ export const POST = async (request: NextRequest) => {
       );
     }
 
+    // Convert port to number (it may come as a string from forms)
+    const portNumber = port ? parseInt(port, 10) : undefined;
+
     // Create new site
-    const newSite = await createSite(name, color);
+    const newSite = await createSite(name, color, portNumber);
 
     return NextResponse.json(
       { 
@@ -76,7 +79,10 @@ export const PATCH = async (request: NextRequest) => {
     }
 
     const body = await request.json();
-    const { name, color, isActive } = body;
+    const { name, color, port, isActive } = body;
+    
+    // Convert port to number if it exists
+    const portNumber = port !== undefined ? parseInt(port, 10) : undefined;
 
     // Update site with provided fields
     const updatedSite = await updateSite(
@@ -84,6 +90,7 @@ export const PATCH = async (request: NextRequest) => {
       { 
         ...(name !== undefined && { name }),
         ...(color !== undefined && { color }),
+        ...(portNumber !== undefined && { port: portNumber }),
         ...(isActive !== undefined && { isActive })
       }
     );
