@@ -37,3 +37,4 @@ pnpm-debug.log*
 next-env.d.ts
 apps/site2/node_modules/
 apps/site2/node_modules/
+apps/*/node_modules/
